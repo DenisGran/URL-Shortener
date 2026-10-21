@@ -1,0 +1,15 @@
+[project]
+name = "rapid-codes"
+version = "0.1.0"
+description = "A URL shortener with measured performance: https://rapid.codes"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    # [standard] adds uvloop and httptools: faster event loop and HTTP parser on Linux (Heroku).
+    "uvicorn[standard]>=0.32",
+]
+
+[tool.uv]
+# An application, not a library: nothing to build or publish.
+package = false
