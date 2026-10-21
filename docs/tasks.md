@@ -20,8 +20,8 @@ Last updated: 2026-10-20 · Each task is at most half a day (~4 h). Do them in o
 - **Done when:** `https://<app>.herokuapp.com/` shows the page, and `/docs` and `/openapi.json` both return 404.
 
 ### T2. CI pipeline — Claude
-- [ ] GitHub Actions: on every push and PR run `ruff check`, `ruff format --check`, `mypy app`, `pytest`.
-- [ ] One trivial test (`GET /` returns 200) so the pipeline has something to run.
+- [x] GitHub Actions: on every PR and every push to `main` run `ruff check`, `ruff format --check`, `mypy app tests`, `pytest` (D14).
+- [x] One trivial test (`GET /` returns 200) so the pipeline has something to run.
 - [ ] Branch protection on `main`: CI must pass.
 - **Done when:** a PR shows a green check, and a deliberately broken lint fails it.
 
