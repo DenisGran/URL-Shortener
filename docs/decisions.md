@@ -28,6 +28,7 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
   - **ruff rule set** `E, W, F, I, UP, B, SIM, ASYNC, S`, line length 100. Beyond the defaults this adds import sorting, modern-syntax upgrades, common-bug patterns, blocking calls inside `async` code, and bandit security rules (`S`: e.g. string-built SQL, `random` used for secrets). `assert` is allowed in tests only.
   - **Async tests use anyio's pytest plugin** (`@pytest.mark.anyio`), which already ships with FastAPI, instead of adding `pytest-asyncio`.
   - **CI runs on every PR and every push to `main`**, not on every push to every branch.
+  - **GitHub Actions are pinned to a full commit SHA** (with the version in a comment), not a tag like `@v10`. A tag can be moved to different code by whoever controls the action's repo; a SHA can't. Also, `setup-uv` doesn't publish a floating `v10` tag at all, which broke the first CI run.
 - **Alternatives rejected:** mypy non-strict (lets untyped code in, which then has to be fixed later); ruff defaults only (misses `ASYNC` and `S`, which match this project's async DB code and its "no string SQL, `secrets` not `random`" rules); `pytest-asyncio` (one more dependency for the same job); CI on all pushes (each push to an open PR's branch would run CI twice).
 - **Why:** the `ASYNC` and `S` rules check, in CI, two things CLAUDE.md asks for by hand. Strict typing is easiest when the codebase is 20 lines long.
 - **Consequences:** a branch without a PR gets no CI run. tasks.md T2 wording was adjusted to match.
