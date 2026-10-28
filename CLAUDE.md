@@ -19,20 +19,21 @@ Read these before changing anything:
 
 ## Stack
 
-Python 3.12 · FastAPI · uvicorn (2 workers) · PostgreSQL 16 · psycopg 3 + psycopg_pool (raw SQL, no ORM) · Alembic · pytest + httpx · ruff · mypy · OpenTelemetry (OTLP push) · k6 · Heroku Basic dyno + Heroku Postgres Essential-0 · GitHub Actions.
+Python 3.12 (via uv, D13) · FastAPI · uvicorn (2 workers) · PostgreSQL 16 · psycopg 3 + psycopg_pool (raw SQL, no ORM) · Alembic · pytest + httpx · ruff · mypy · OpenTelemetry (OTLP push) · k6 · Heroku Basic dyno + Heroku Postgres Essential-0 · GitHub Actions.
 
 ## Commands
 
 ```bash
-docker compose up -d db                  # local Postgres
-alembic upgrade head                     # apply migrations
-uvicorn app.main:app --reload            # run locally on :8000
-pytest                                   # all tests (integration tests need Docker Postgres)
-pytest tests/unit                        # fast tests only
-ruff check . && ruff format --check .    # lint + format check
-mypy app                                 # type check
-python -m scripts.export_openapi         # regenerate docs/openapi.json
-k6 run loadtest/redirect.js              # load test (local only)
+uv sync                                          # install deps (incl. dev) from uv.lock
+docker compose up -d db                          # local Postgres
+uv run alembic upgrade head                      # apply migrations
+uv run uvicorn app.main:app --reload             # run locally on :8000
+uv run pytest                                    # all tests (integration tests need Docker Postgres)
+uv run pytest tests/unit                         # fast tests only
+uv run ruff check . && uv run ruff format --check .   # lint + format check
+uv run mypy app tests                            # type check (strict)
+uv run python -m scripts.export_openapi          # regenerate docs/openapi.json
+k6 run loadtest/redirect.js                      # load test (local only)
 ```
 
 ## Architecture rules

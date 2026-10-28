@@ -19,3 +19,14 @@ uv run uvicorn app.main:app --reload
 ```
 
 Then open http://localhost:8000/.
+
+## Checks
+
+The same four checks run in CI on every PR and every push to `main`:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy app tests
+uv run pytest
+```
