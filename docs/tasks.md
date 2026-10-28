@@ -15,7 +15,7 @@ Last updated: 2026-10-20 · Each task is at most half a day (~4 h). Do them in o
 
 ### T1. Walking skeleton deployed to Heroku — Together
 - [ ] Claim the Heroku offer in the GitHub Student Pack; create the app; set the dyno to **Basic** (not Eco, which sleeps).
-- [ ] Claude scaffolds: `pyproject.toml` (Python 3.12, FastAPI, uvicorn), `app/main.py` app factory with `docs_url=None, redoc_url=None, openapi_url=None`, `GET /` returning "rapid.codes — coming soon", `Procfile` (`web: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2 --proxy-headers --forwarded-allow-ips='*'`), `.python-version`, `.gitignore`, `README.md` stub.
+- [ ] Claude scaffolds: `pyproject.toml` (Python 3.12, FastAPI, uvicorn), `app/main.py` app factory with `docs_url=None, redoc_url=None, openapi_url=None`, `GET /` returning "rapid.codes — coming soon", `Procfile` (`web: uvicorn app.main:create_app --factory --host 0.0.0.0 --port $PORT --workers 2 --proxy-headers --forwarded-allow-ips='*'`), `.python-version`, `.gitignore`, `README.md` stub.
 - [ ] First commit on `main`, push, deploy (`git push heroku main` or GitHub integration).
 - **Done when:** `https://<app>.herokuapp.com/` shows the page, and `/docs` and `/openapi.json` both return 404.
 
@@ -34,9 +34,9 @@ Last updated: 2026-10-20 · Each task is at most half a day (~4 h). Do them in o
 ## Phase 1 — Database
 
 ### T4. Local Postgres + config + connection pool — Claude
-- [ ] `docker-compose.yml` with Postgres 16; `.env.example`.
-- [ ] `app/config.py` (pydantic-settings): `DATABASE_URL`, `BASE_URL`. **Gotcha:** Heroku gives `postgres://…`; convert it to `postgresql://…` in config.
-- [ ] `app/infra/db.py`: `AsyncConnectionPool(min_size=1, max_size=5)` opened and closed in the FastAPI lifespan.
+- [x] `docker-compose.yml` with Postgres 16; `.env.example`.
+- [x] `app/config.py` (pydantic-settings): `DATABASE_URL`, `BASE_URL`. **Gotcha:** Heroku gives `postgres://…`; convert it to `postgresql://…` in config.
+- [x] `app/infra/db.py`: `AsyncConnectionPool(min_size=1, max_size=5)` opened and closed in the FastAPI lifespan.
 - **Done when:** the app starts locally against Docker Postgres, and a test opens and closes the pool.
 
 ### T5. Schema migration + Heroku Postgres — Together

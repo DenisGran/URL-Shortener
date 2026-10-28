@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",
+    # [binary] ships libpq inside the wheel; [pool] adds psycopg_pool.
+    "psycopg[binary,pool]>=3.3.6",
+    "pydantic-settings>=2.16.2",
     # [standard] adds uvloop and httptools: faster event loop and HTTP parser on Linux (Heroku).
     "uvicorn[standard]>=0.32",
 ]
@@ -38,6 +41,8 @@ select = ["E", "W", "F", "I", "UP", "B", "SIM", "ASYNC", "S"]
 [tool.mypy]
 strict = true
 python_version = "3.12"
+# Lets mypy understand pydantic models, e.g. Settings() with fields read from the environment.
+plugins = ["pydantic.mypy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
