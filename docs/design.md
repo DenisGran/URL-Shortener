@@ -184,7 +184,7 @@ No `/docs`, `/redoc`, `/healthz` or `/metrics`. The OpenAPI schema is exported t
 
 | Concern | Design |
 | --- | --- |
-| Process model | `uvicorn app.main:app --workers 2 --proxy-headers --forwarded-allow-ips='*'`. Two workers on 0.5 GB of RAM; measure memory before adding a third. |
+| Process model | `uvicorn app.main:create_app --factory --workers 2 --proxy-headers --forwarded-allow-ips='*'`. Two workers on 0.5 GB of RAM; measure memory before adding a third. |
 | DB connections | `psycopg_pool.AsyncConnectionPool(min_size=1, max_size=5)` per worker → at most 10 of the 20 allowed, leaving room for `psql` and migrations. Little's law: 500 req/s × 2 ms per query ≈ 1 busy connection, so 10 is generous. |
 | Migrations | Alembic, run in the Heroku **release phase** (`release: alembic upgrade head` in the Procfile), so a failed migration blocks the deploy. |
 | Client IP | Heroku's router appends the real client IP as the **last** `X-Forwarded-For` entry. Use the rightmost value; earlier values are client-controlled and can be faked. |
