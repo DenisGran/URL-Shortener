@@ -1,7 +1,5 @@
 """Application factory: builds the FastAPI app and wires routers and dependencies."""
 
-import os  # deliberate lint error (T2 proof), reverted next commit
-
 from fastapi import FastAPI
 
 from app.api import home
