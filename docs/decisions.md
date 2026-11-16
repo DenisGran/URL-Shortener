@@ -58,3 +58,15 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
 - **Alternatives rejected:** always fail (`uv run pytest` is red on a machine without Docker running, so people stop running it); always skip (CI could go green without ever touching a database).
 - **Why:** local runs stay useful; CI can never silently skip the DB.
 - **Consequences:** a local "skipped" is visible in pytest's summary (`-ra`), not hidden.
+
+## D18. `development` integration branch; `main` is what's deployed
+
+- **Date:** 2026-11-16 · **Task:** — (workflow) · **Status:** Proposed (branch created at Denis's request; the flow below is Claude's proposal)
+- **Context:** Heroku will auto-deploy `main`. T4 makes the app require `DATABASE_URL` at startup, and Heroku Postgres only arrives in T5. Merging T4 straight into `main` would make the next deploy crash.
+- **Decision:**
+  - Task PRs (one per task) target `development` and are squash-merged there.
+  - `main` only receives merges from `development` when that state should go live. Heroku deploys `main`.
+  - CI runs on PRs and on pushes to both `main` and `development`.
+- **Alternatives rejected:** everything into `main` (simplest, but every merge is a deploy, and T4 would break production until T5); full git-flow with release and hotfix branches (too much ceremony for one developer).
+- **Why:** `main` stays deployable at all times; work that needs infrastructure that doesn't exist yet (T4 needs T5) can still be merged.
+- **Consequences:** one extra PR (`development` → `main`) per release. Branch protection applies to both branches. CLAUDE.md's "Commits and PRs" section gets updated once this is accepted.
