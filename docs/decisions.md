@@ -70,3 +70,21 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
 - **Alternatives rejected:** everything into `main` (simplest, but every merge is a deploy, and T4 would break production until T5); full git-flow with release and hotfix branches (too much ceremony for one developer).
 - **Why:** `main` stays deployable at all times; work that needs infrastructure that doesn't exist yet (T4 needs T5) can still be merged.
 - **Consequences:** one extra PR (`development` → `main`) per release. Branch protection applies to both branches. CLAUDE.md's "Commits and PRs" section describes the flow. Stacked PRs are updated by merging, never by rebasing, so no branch ever needs a force-push (rewriting history on GitHub).
+
+## D19. IDN hosts are stored as punycode
+
+- **Date:** 2026-11-16 · **Task:** T6 · **Status:** Proposed (Denis decides while implementing T6)
+- **Context:** An IDN (internationalized domain name) has non-ASCII letters, e.g. `bücher.de`. DNS itself only carries ASCII, so browsers convert it to **punycode**, an ASCII encoding with an `xn--` prefix: `bücher.de` → `xn--bcher-kva.de`. FR3 (normalization) says "lowercase the host" but doesn't cover IDNs.
+- **Decision:** Convert the host to punycode during normalization, so `https://bücher.de/` and `https://xn--bcher-kva.de/` are the same link (FR2: same URL, same code) and the stored URL is plain ASCII.
+- **Alternatives rejected:** keep the Unicode form (two spellings of one site get two codes; Unicode lookalike letters, e.g. Cyrillic `а` vs Latin `a`, are invisible in the stored data); reject IDNs (blocks real sites).
+- **How:** the `idna` package (already installed as a dependency of httpx/anyio) implements the current standard, IDNA 2008 with UTS #46 mapping. Python's built-in `"…".encode("idna")` implements the older IDNA 2003, which maps some characters differently (e.g. `ß`). Using `idna` means adding it to `pyproject.toml` as a direct dependency.
+- **Consequences:** an invalid IDN (e.g. a label over 63 characters) becomes an InvalidUrlError (422).
+
+## D20. Reject URLs that contain a username or password
+
+- **Date:** 2026-11-16 · **Task:** T6 · **Status:** Proposed (Denis decides while implementing T6)
+- **Context:** URLs can carry credentials: `https://user:pass@host/`. FR4 (validation) doesn't mention them. They're a known phishing trick: `https://google.com@evil.example/` actually goes to `evil.example`, because everything before `@` is the username.
+- **Decision:** Reject any URL with a userinfo part (`@` before the host) with an InvalidUrlError.
+- **Alternatives rejected:** strip the credentials (silently changes where the link logs in); keep them (stores someone's password in our DB and makes the phishing trick one click away).
+- **Why:** almost no legitimate share link contains credentials, and storing passwords is a liability.
+- **Consequences:** FR4 in SPEC.md gets a line added once accepted.
