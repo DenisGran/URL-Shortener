@@ -61,7 +61,7 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
 
 ## D18. `development` integration branch; `main` is what's deployed
 
-- **Date:** 2026-11-16 · **Task:** — (workflow) · **Status:** Proposed (branch created at Denis's request; the flow below is Claude's proposal)
+- **Date:** 2026-11-16 · **Task:** — (workflow) · **Status:** Accepted (Denis, 2026-11-16)
 - **Context:** Heroku will auto-deploy `main`. T4 makes the app require `DATABASE_URL` at startup, and Heroku Postgres only arrives in T5. Merging T4 straight into `main` would make the next deploy crash.
 - **Decision:**
   - Task PRs (one per task) target `development` and are squash-merged there.
@@ -69,4 +69,4 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
   - CI runs on PRs and on pushes to both `main` and `development`.
 - **Alternatives rejected:** everything into `main` (simplest, but every merge is a deploy, and T4 would break production until T5); full git-flow with release and hotfix branches (too much ceremony for one developer).
 - **Why:** `main` stays deployable at all times; work that needs infrastructure that doesn't exist yet (T4 needs T5) can still be merged.
-- **Consequences:** one extra PR (`development` → `main`) per release. Branch protection applies to both branches. CLAUDE.md's "Commits and PRs" section gets updated once this is accepted.
+- **Consequences:** one extra PR (`development` → `main`) per release. Branch protection applies to both branches. CLAUDE.md's "Commits and PRs" section describes the flow. Stacked PRs are updated by merging, never by rebasing, so no branch ever needs a force-push (rewriting history on GitHub).

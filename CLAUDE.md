@@ -68,4 +68,6 @@ k6 run loadtest/redirect.js                      # load test (local only)
 
 - Small PRs, one task from `docs/tasks.md` each; reference the task (e.g. "T9 Postgres repository").
 - Conventional commits: `feat:`, `fix:`, `test:`, `docs:`, `chore:`, `refactor:`.
-- CI must be green before merging to `main`.
+- Branches (D18): task PRs target `development` and are squash-merged there. `main` only gets `development` merged in when that state should go live; Heroku deploys `main`, so `main` must always be deployable.
+- Stacked PRs: after the lower PR is squash-merged, merge `development` into the upper branch (no rebase, no force-push), retarget its PR to `development`, then squash-merge it. Squashing drops the merge commits.
+- CI must be green before merging into `development` or `main`.
