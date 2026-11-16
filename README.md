@@ -26,7 +26,7 @@ Then open http://localhost:8000/.
 
 ## Checks
 
-The same four checks run in CI on every PR and every push to `main`:
+The same four checks run in CI on every PR and every push to `main` or `development`:
 
 ```bash
 uv run ruff check .
