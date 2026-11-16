@@ -17,6 +17,24 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # A throwaway Postgres 16 for integration tests, same image and credentials as
+    # docker-compose.yml.
+    services:
+      db:
+        image: postgres:16
+        env:
+          POSTGRES_USER: rapid
+          POSTGRES_PASSWORD: rapid
+          POSTGRES_DB: rapid
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rapid -d rapid"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql://rapid:rapid@localhost:5432/rapid
     steps:
       # Actions are pinned to a commit SHA: a tag can be moved to other code, a SHA can't.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

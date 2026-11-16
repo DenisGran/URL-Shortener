@@ -1,0 +1,21 @@
+# Local development only. Heroku uses Heroku Postgres (T5).
+services:
+  db:
+    image: postgres:16
+    environment:
+      # Local-only credentials; they match DATABASE_URL in .env.example.
+      POSTGRES_USER: rapid
+      POSTGRES_PASSWORD: rapid
+      POSTGRES_DB: rapid
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rapid -d rapid"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  pgdata:

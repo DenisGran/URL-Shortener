@@ -11,14 +11,18 @@ A URL shortener: paste a long URL, get `https://rapid.codes/<code>`, which redir
 
 ## Run locally
 
-Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you).
+Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.12 for you) and Docker (for Postgres).
 
 ```bash
+cp .env.example .env
+docker compose up -d db
 uv sync
-uv run uvicorn app.main:app --reload
+uv run uvicorn app.main:create_app --factory --reload
 ```
 
 Then open http://localhost:8000/.
+
+> **Windows:** keep `--reload`. Without it, uvicorn uses Windows' `ProactorEventLoop`, which psycopg's async mode can't use, and startup fails. With `--reload` uvicorn runs the app in a subprocess on a compatible loop. Linux (CI, Heroku) is unaffected.
 
 ## Checks
 

@@ -4,7 +4,7 @@
     {
       "name": "app",
       "runtimeExecutable": "uv",
-      "runtimeArgs": ["run", "uvicorn", "app.main:app", "--reload", "--port", "8000"],
+      "runtimeArgs": ["run", "uvicorn", "app.main:create_app", "--factory", "--reload", "--port", "8000"],
       "port": 8000
     }
   ]

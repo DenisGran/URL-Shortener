@@ -32,3 +32,41 @@ Format per entry: context, decision, alternatives rejected, why, consequences.
 - **Alternatives rejected:** mypy non-strict (lets untyped code in, which then has to be fixed later); ruff defaults only (misses `ASYNC` and `S`, which match this project's async DB code and its "no string SQL, `secrets` not `random`" rules); `pytest-asyncio` (one more dependency for the same job); CI on all pushes (each push to an open PR's branch would run CI twice).
 - **Why:** the `ASYNC` and `S` rules check, in CI, two things CLAUDE.md asks for by hand. Strict typing is easiest when the codebase is 20 lines long.
 - **Consequences:** a branch without a PR gets no CI run. tasks.md T2 wording was adjusted to match.
+
+## D15. Serve the app with `uvicorn --factory`, no module-level `app`
+
+- **Date:** 2026-10-28 · **Task:** T4 · **Status:** Proposed
+- **Context:** With settings and a DB pool, building the app now reads `DATABASE_URL`. A module-level `app = create_app()` would run that on every `import app.main`, including in unit tests that have no database and no `.env`.
+- **Decision:** `app/main.py` exposes only `create_app(settings=None)`. uvicorn builds the app with `uvicorn app.main:create_app --factory`. Tests call `create_app(Settings(...))` with their own settings.
+- **Alternatives rejected:** keep `app = create_app()` and give `Settings` a default `DATABASE_URL` (a wrong default that silently "works" is worse than a clear startup error); a cached global `get_settings()` (a module-level global, which CLAUDE.md rules out for state).
+- **Why:** importing a module has no side effects; tests control their own config; matches the "no globals, wire through `create_app`" rule.
+- **Consequences:** Procfile, launch config, README, CLAUDE.md and design.md use `create_app --factory`.
+
+## D16. Get everything working on localhost before Heroku (T4 before T3 and T5)
+
+- **Date:** 2026-10-28 · **Task:** T4 · **Status:** Accepted (Denis, 2026-10-28)
+- **Context:** Heroku account activation takes ~24 h; T3 (custom domain + HTTPS) and T5 (migration + Heroku Postgres) both need it.
+- **Decision:** Do T4 now; T3 and T5 follow once the app runs locally against Postgres.
+- **Why:** nothing in T4 depends on Heroku, and a working local setup makes T5 a deploy step instead of a debugging session.
+- **Consequences:** tasks.md order is unchanged; only the execution order differs.
+
+## D17. Integration tests skip locally without a DB, fail in CI
+
+- **Date:** 2026-10-28 · **Task:** T4 · **Status:** Proposed
+- **Context:** Integration tests need Postgres. Locally it may not be running; in CI it always is (a `postgres:16` service container).
+- **Decision:** The `settings` fixture in `tests/integration/conftest.py` skips the test when `DATABASE_URL` isn't configured, unless `CI=true` (set by GitHub Actions), where it fails.
+- **Alternatives rejected:** always fail (`uv run pytest` is red on a machine without Docker running, so people stop running it); always skip (CI could go green without ever touching a database).
+- **Why:** local runs stay useful; CI can never silently skip the DB.
+- **Consequences:** a local "skipped" is visible in pytest's summary (`-ra`), not hidden.
+
+## D18. `development` integration branch; `main` is what's deployed
+
+- **Date:** 2026-11-16 · **Task:** — (workflow) · **Status:** Accepted (Denis, 2026-11-16)
+- **Context:** Heroku will auto-deploy `main`. T4 makes the app require `DATABASE_URL` at startup, and Heroku Postgres only arrives in T5. Merging T4 straight into `main` would make the next deploy crash.
+- **Decision:**
+  - Task PRs (one per task) target `development` and are squash-merged there.
+  - `main` only receives merges from `development` when that state should go live. Heroku deploys `main`.
+  - CI runs on PRs and on pushes to both `main` and `development`.
+- **Alternatives rejected:** everything into `main` (simplest, but every merge is a deploy, and T4 would break production until T5); full git-flow with release and hotfix branches (too much ceremony for one developer).
+- **Why:** `main` stays deployable at all times; work that needs infrastructure that doesn't exist yet (T4 needs T5) can still be merged.
+- **Consequences:** one extra PR (`development` → `main`) per release. Branch protection applies to both branches. CLAUDE.md's "Commits and PRs" section describes the flow. Stacked PRs are updated by merging, never by rebasing, so no branch ever needs a force-push (rewriting history on GitHub).

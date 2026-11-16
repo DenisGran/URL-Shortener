@@ -27,7 +27,7 @@ Python 3.12 (via uv, D13) · FastAPI · uvicorn (2 workers) · PostgreSQL 16 · 
 uv sync                                          # install deps (incl. dev) from uv.lock
 docker compose up -d db                          # local Postgres
 uv run alembic upgrade head                      # apply migrations
-uv run uvicorn app.main:app --reload             # run locally on :8000
+uv run uvicorn app.main:create_app --factory --reload   # run locally on :8000
 uv run pytest                                    # all tests (integration tests need Docker Postgres)
 uv run pytest tests/unit                         # fast tests only
 uv run ruff check . && uv run ruff format --check .   # lint + format check
@@ -60,9 +60,14 @@ k6 run loadtest/redirect.js                      # load test (local only)
 - The rate limit is per worker (in-process), so the real limit is up to 2× the configured one. Known and documented.
 - `code` uses `COLLATE "C"`: case-sensitive by bytes. Don't lowercase codes anywhere except for the word-blocklist check.
 - The dyno filesystem is wiped on restart. Never write state to disk.
+- Windows dev: psycopg async can't run on the `ProactorEventLoop`. Run uvicorn with `--reload` (it then uses a selector loop); tests get one via the `anyio_backend` fixture in `tests/conftest.py`.
+- The app is built by `create_app()` and served with `--factory`; there is no module-level `app` (D15).
+- Integration tests skip locally when `DATABASE_URL` isn't set, but fail in CI (D17).
 
 ## Commits and PRs
 
 - Small PRs, one task from `docs/tasks.md` each; reference the task (e.g. "T9 Postgres repository").
 - Conventional commits: `feat:`, `fix:`, `test:`, `docs:`, `chore:`, `refactor:`.
-- CI must be green before merging to `main`.
+- Branches (D18): task PRs target `development` and are squash-merged there. `main` only gets `development` merged in when that state should go live; Heroku deploys `main`, so `main` must always be deployable.
+- Stacked PRs: after the lower PR is squash-merged, merge `development` into the upper branch (no rebase, no force-push), retarget its PR to `development`, then squash-merge it. Squashing drops the merge commits.
+- CI must be green before merging into `development` or `main`.
